@@ -5,7 +5,6 @@ import shutil
 import sys
 import logging
 import logging.handlers
-from .messages import *
 import shlex
 import datetime
 from subprocess import PIPE, Popen
@@ -71,41 +70,9 @@ def get_logger(path, name):
     return logger
 
 
-def raiseerror(exception, message):
-    """ Raise User friendly error message
-    """
-    try:
-        raise exception(message)
-    except Exception as e:
-        sys.stderr.write("ERROR({0}): {1}\n".format(e.__doc__, e.message))
-        warnings.simplefilter("ignore")
-        sys.exit()
 
 
-def mkdir(*paths):
-    """ make all given directories
-    :param paths: directories want to make
-    :type paths: str[,str,..]
-    """
-    for path in paths:
-        basedir = os.path.dirname(path)
-        if basedir:
-            if not os.path.exists(basedir):
-                parentdir = os.path.dirname(basedir)
-                if not os.path.exists(parentdir):
-                    try:
-                        os.mkdir(parentdir)
-                    except:
-                        raiseerror(InputPathError, '{} is not exists'.format(os.path.dirname(parentdir)))
-                try:
-                    os.mkdir(basedir)
-                except:
-                    pass
-        if not (os.path.exists(path) and os.path.isdir(path)):
-            try:
-                os.mkdir(path)
-            except:
-                pass
+
 
 
 def path_splitter(path):
@@ -126,20 +93,3 @@ def copyfile(output_path, input_path):
     shutil.copyfile(input_path, output_path)
 
 
-def update(*args):
-    """ Upgrade python module
-    :param args: list of python modules want to upgrade. if not given, this method upgrade pynit module
-    :type args: str, ...
-    """
-    if not len(args):
-        pip.main(['install', '--upgrade', 'pynit'])
-    else:
-        pip.main(['install', '--upgrade'] + args)
-
-
-def install(*args):
-    """ Install python module
-    :param args: list of python modules want to install
-    :type args: str, ...
-    """
-    pip.main(['install'] + args)

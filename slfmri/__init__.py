@@ -4,7 +4,7 @@ from .qc import *
 from .filter import *
 from .rsparam import *
 from .io import *
-from .lib.tmpobj import Atlas
+from slfmri.deprecated.tmpobj import Atlas
 __version__ = '0.0.1'
 __all__ = ['get_funcobj', 'apply_funcobj', 'isfuncobj', 'get_volreg', 'iszero', 'get_filepath', 'mkdir', # tools module
            'demean', 'modenorm', 'standardization', # norm module

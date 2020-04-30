@@ -25,8 +25,9 @@ setup(name='slfmri',
       license='GNLv3',
       packages=find_packages(),
       install_requires=['nibabel',
-                        'numpy',
-                        'scipy',
+                        'SimpleITK>=1.2.4'
+                        'numpy>=1.18.0',
+                        'scipy>=1.4.0',
                         'scikit-learn>=0.22.0'],
       classifiers=[
           'Development Status :: 1 - Planning',

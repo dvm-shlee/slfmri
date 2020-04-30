@@ -1,8 +1,33 @@
 import re
 import numpy as np
 from .methods import *
-from .messages import *
 from nibabel import Nifti1Image, affines
+
+
+def mkdir(*paths):
+    """ make all given directories
+    :param paths: directories want to make
+    :type paths: str[,str,..]
+    """
+    for path in paths:
+        basedir = os.path.dirname(path)
+        if basedir:
+            if not os.path.exists(basedir):
+                parentdir = os.path.dirname(basedir)
+                if not os.path.exists(parentdir):
+                    try:
+                        os.mkdir(parentdir)
+                    except:
+                        raise Exception(f'{os.path.dirname(parentdir)} is not exists')
+                try:
+                    os.mkdir(basedir)
+                except:
+                    pass
+        if not (os.path.exists(path) and os.path.isdir(path)):
+            try:
+                os.mkdir(path)
+            except:
+                pass
 
 
 class ImageObj(Nifti1Image):
@@ -35,7 +60,7 @@ def load(filename):
             import SimpleITK as sitk
             mha = sitk.ReadImage(filename)
         except:
-            raise ImportItkFailure
+            raise Exception
         data = sitk.GetArrayFromImage(mha)
         resol = mha.GetSpacing()
         origin = mha.GetOrigin()
@@ -55,9 +80,8 @@ def load(filename):
             import json
             img = json.load(open(filename))
         else:
-            raise InputPathError
+            raise Exception
     return img
-
 
 
 def parsing_atlas(path):
@@ -99,9 +123,9 @@ def parsing_atlas(path):
                     else:
                         filepath = filepath
             if filepath == os.path.basename(splitnifti(path)):
-                raise NoLabelFile
+                raise Exception
         else:
-            raise NoLabelFile
+            raise Exception
         pattern = r'^\s+(?P<idx>\d+)\s+(?P<R>\d+)\s+(?P<G>\d+)\s+(?P<B>\d+)\s+' \
                   r'(\d+|\d+\.\d+)\s+\d+\s+\d+\s+"(?P<roi>.*)$'
         with open(filepath, 'r') as labelfile:
@@ -115,8 +139,8 @@ def parsing_atlas(path):
                     rgb = np.array([c for c in map(float, rgb)])/255
                     label[idx] = roi, rgb
     else:
-        raise InputPathError
-    data = np.asarray(atlas.dataobj)
+        raise Exception
+
     return atlas, label
 
 
@@ -154,7 +178,7 @@ class Atlas(object):
         elif type(path) is str:
             self.load(path)
         else:
-            raise InputFileError
+            raise Exception
 
     @property
     def coordinates(self):
@@ -173,7 +197,7 @@ class Atlas(object):
         if type(imageobj) is ImageObj:
             self._image = imageobj
         else:
-            raise InputObjectError
+            raise Exception
 
     def load(self, path):
         self._image, self._label = parsing_atlas(path)
@@ -185,10 +209,7 @@ class Atlas(object):
 
     def extract(self, path, contra=False, merge=False, surfix=None):
         if not os.path.exists(path):
-            # try:
             mkdir(path)
-            # except:
-            #     raise messages.InputPathError
         num_of_rois = int(np.max(self._image._dataobj))
         for i in range(num_of_rois + 1):
             if not i:
