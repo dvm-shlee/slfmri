@@ -19,7 +19,7 @@ def load(filename):
         elif '.tsv' in filename:
             img = pd.read_table(filename)
         elif '.1D' in filename:
-            img = pd.read_csv(filename, header=None, sep='\s+')
+            img = pd.read_csv(filename, header=None, sep=r'\s+')
         elif '.json' in filename:
             import json
             img = json.load(open(filename))

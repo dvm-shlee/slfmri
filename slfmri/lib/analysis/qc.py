@@ -1,9 +1,13 @@
+import numpy as np
+from ..utils import get_funcobj, apply_funcobj
+from ..signal.norm import demean
+
+
 def tsnr(signal):
     return signal.mean() / signal.std()
 
 
 def dvars(func_img, mask_img=None):
-    import numpy as np
     if mask_img is not None:
         indice = np.nonzero(mask_img)
     else:
@@ -14,10 +18,6 @@ def dvars(func_img, mask_img=None):
 
 
 def bold_meanstd(func_img, mask_img=None):
-    import numpy as np
-    from .tools import get_funcobj, apply_funcobj
-    from .norm import demean
-
     if mask_img is not None:
         indice = np.nonzero(mask_img)
     else:
@@ -28,21 +28,29 @@ def bold_meanstd(func_img, mask_img=None):
     return demeaned_img[indice].mean(0), demeaned_img[indice].std(0)
 
 
+def img_tsnr(func_img, mask_img=None):
+    if mask_img is not None:
+        indice = np.nonzero(mask_img)
+    else:
+        indice = np.nonzero(func_img.mean(-1))
+    tsnr_obj = get_funcobj(tsnr)
+    tsnr_img = apply_funcobj(tsnr_obj, func_img, mask_img)
+
+    return
+
+
 def mparam_fd(volreg):
     """ Framewise displacement """
-    import numpy as np
     return np.abs(np.insert(np.diff(volreg, axis=0), 0, 0, axis=0)).sum(axis=1)
 
 
 def mparam_ard(volreg):
     """ Absolute rotational displacement """
-    import numpy as np
     return np.abs(np.insert(np.diff(volreg[volreg.columns[:3]], axis=0),
                             0, 0, axis=0)).sum(axis=1)
 
 
 def mparam_atd(volreg):
-    import numpy as np
     return np.abs(np.insert(np.diff(volreg[volreg.columns[3:]], axis=0),
                             0, 0, axis=0)).sum(axis=1)
 

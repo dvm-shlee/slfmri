@@ -1,5 +1,7 @@
+from ..utils import iszero
+
+
 def linear_regression(signal, estimator, design_matrix):
-    from .tools import iszero
     if iszero(signal):
         return signal
     else:

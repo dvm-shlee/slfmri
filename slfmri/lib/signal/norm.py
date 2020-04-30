@@ -1,4 +1,4 @@
-# functions contains signal or image normalization
+# functions contains space normalization
 
 
 # signal normalization tools
@@ -16,7 +16,11 @@ def standardization(signal, axis=0):
     return norm_data
 
 
-# image normalization tools
+def calc_modenorm(signal, mean, mode):
+    return (signal - mean) * mode / mean + mode
+
+
+# space normalization tools
 def modenorm(func_img, mask_img=None, mode=1000):
     """
     Mode normalization
@@ -26,11 +30,7 @@ def modenorm(func_img, mask_img=None, mode=1000):
     :return: processed_img
     """
     import numpy as np
-    from .tools import get_funcobj, apply_funcobj
-
-    def calc_modenorm(signal, mean, mode):
-        return (signal - mean) * mode / mean + mode
-
+    from ..utils import get_funcobj, apply_funcobj
     if mask_img is None:
         indice = np.nonzero(func_img)
     else:

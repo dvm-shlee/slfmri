@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+import pandas as pd
+from matplotlib.backends.backend_pdf import PdfPages
 
 
 class BaseReport(object):
@@ -6,14 +8,12 @@ class BaseReport(object):
         pass
 
     def set_axes(self, n_row, n_col, title=None, *args, **kwargs):
-        import matplotlib.pyplot as plt
         fig, axes = plt.subplots(n_row, n_col, *args, **kwargs)
         if title is not None:
             plt.suptitle(title, fontsize=self.font_size['title'])
         return fig, axes
 
     def plot_ts(self, ax, ts_data, *args, **kwargs):
-        import pandas as pd
         if isinstance(ts_data, pd.DataFrame):
             n_data = ts_data.shape[0]
         elif isinstance(ts_data, pd.Series):
@@ -59,7 +59,7 @@ class QC_report(BaseReport):
     The class to plot QC report
     """
     def __init__(self, qc_object=None):
-        #super(QC_report, self).__init__()
+        super(QC_report, self).__init__()
         self._fd = None
         self._dvars = None
         self._vwi = None
@@ -113,7 +113,7 @@ class QC_report(BaseReport):
         self._mparam = qc_object.mparam.loc[:, ::-1]
 
     def plot_MotionAndBold(self, subj_code):
-        from .tools import get_color_tuple
+        from ..utils import get_rgb_tuple
         title = u'{}\nMean FD: {} µm\nRMS movements: {} µm'.format(subj_code, self.mean_fd, self.rms)
 
         fig, axes = self.set_axes(5, 1, sharex=True, title=title,
@@ -122,17 +122,17 @@ class QC_report(BaseReport):
 
         # Motion parameters
         mp_linestyle = ['-'] * 3 + [':'] * 3
-        mp_color_map = {0: get_color_tuple(188, 182, 247),
-                        1: get_color_tuple(200, 188, 139),
-                        2: get_color_tuple(205, 137, 134)}
+        mp_color_map = {0: get_rgb_tuple(188, 182, 247),
+                        1: get_rgb_tuple(200, 188, 139),
+                        2: get_rgb_tuple(205, 137, 134)}
         mp_color_map = mp_color_map.values() * 2
         self.plot_ts(axes[0], self.mparam * 1000, linewidth=self.preset['linewidth'], linestyle=mp_linestyle,
                      color=mp_color_map)
 
         # Framewise displacement
-        fd_color_map = {'FD': get_color_tuple(188, 47, 40),
-                        'ATD': get_color_tuple(137, 33, 28),
-                        'ARD': get_color_tuple(151, 60, 56)}
+        fd_color_map = {'FD': get_rgb_tuple(188, 47, 40),
+                        'ATD': get_rgb_tuple(137, 33, 28),
+                        'ARD': get_rgb_tuple(151, 60, 56)}
         fd_labels = {'FD': 'Framewise\nDisplacement (FD)',
                      'ATD': 'Absolute translational\ndisplacement (ATD)',
                      'ARD': 'Absolute rotational\ndisplacement (ARD)'}
@@ -195,10 +195,7 @@ class QC_report(BaseReport):
         # Layout control
         fig.subplots_adjust(top=0.9, left=0.15, right=0.70, bottom=0.1)
 
-
     def save_pdf(self, subj_code, output_fname):
-        from matplotlib.backends.backend_pdf import PdfPages
-
         with PdfPages(output_fname) as pdf:
             plt.figure()
             self.plot_MotionAndBold(subj_code)
