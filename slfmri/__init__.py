@@ -1,8 +1,8 @@
 from .lib.utils import *
-from slfmri.lib.signal.norm import *
-from slfmri.lib.analysis.qc import *
-from slfmri.lib.signal.filter import *
-from slfmri.lib.analysis.rs import *
+from .lib.signal.norm import *
+from .lib.analysis.qc import *
+from .lib.signal.filter import *
+from .lib.analysis.rs import *
 from .lib.io import *
 from .deprecated.tmpobj import Atlas
 __version__ = '0.0.1'
