@@ -1,9 +1,10 @@
-from .io import load
-import numpy as np
-from collections import namedtuple
 import inspect
-import os
-from .errors import *
+from collections import namedtuple
+from typing import Callable, Any, Type, Optional, IO
+from .io import load
+from .errors import *    # os module imported from here
+
+_funcobj = namedtuple('FuncObj', ['func', 'args', 'kwargs'])
 
 
 def get_rgb_tuple(r: int, g: int, b: int) -> (float, float, float):
@@ -19,9 +20,10 @@ def get_volreg(path, mean_radius=9):
     :return:
     """
 
-    def convert_radian2distance(volreg, mean_radius):
-        volreg[['Roll', 'Pitch', 'Yaw']] *= (np.pi / 180 * mean_radius)
-        return volreg
+    def convert_radian2distance(volreg_, mean_radius_):
+        volreg_[['Roll', 'Pitch', 'Yaw']] *= (np.pi / 180 * mean_radius_)
+        return volreg_
+
     volreg = load(path)
     volreg.columns = ['Roll', 'Pitch', 'Yaw', 'dI-S', 'dR-L', 'dA-P']
     r = np.round(np.sqrt(2) * mean_radius)
@@ -32,15 +34,17 @@ def iszero(signal):
     return np.all(signal == 0, axis=0)
 
 
-def get_funcobj(func, *args, **kwargs):
-    """
-    Return funcobj to use on 'apply_funcobj' function.
-    :param func:    the input function must have 'signal' as first input argument
-    :return:
+def get_funcobj(func: Callable[..., np.ndarray],
+                *args: Any, **kwargs: Any) -> Type[_funcobj]:
+    """ create function object and set the arguments except input image
+    Args:
+        func: the input function must have 'signal' as first input argument
+        args: arguments for input function
+        kwargs: key:value arguments for input function
+
+    Returns:
         funcobj
     """
-    funcobj = namedtuple('FuncObj', ['func', 'args', 'kwargs'])
-
     # check integrity of function
     if not inspect.isfunction(func):
         raise InvalidApproach('Invalid input object.')
@@ -49,13 +53,13 @@ def get_funcobj(func, *args, **kwargs):
         if not 'signal' in sig.parameters:
             raise InvalidApproach('Invalid input object.')
 
-    funcobj.func = func
-    funcobj.args = args
-    funcobj.kwargs = kwargs
-    return funcobj
+    _funcobj.func = func
+    _funcobj.args = args
+    _funcobj.kwargs = kwargs
+    return _funcobj
 
 
-def isfuncobj(funcobj):
+def is_funcobj(funcobj: Callable[..., namedtuple]) -> bool:
     """ Return true if the object is a funcobj object.
     """
     dtype = type(funcobj)
@@ -66,7 +70,11 @@ def isfuncobj(funcobj):
     return all([f in ['func', 'args', 'kwargs'] for f in fields])
 
 
-def apply_funcobj(funcobj, func_img, mask_img=None):
+def apply_funcobj(funcobj,
+                  func_img: np.ndarray,
+                  mask_img: Optional[np.ndarray] = None,
+                  io_handler: Optional[IO] = None,
+                  ) -> np.ndarray:
     """
     This function apply given funcobj(s) to input data on time domain.
     If the list of funcobjs are given, funcobjs will be applied serial manner
@@ -74,6 +82,7 @@ def apply_funcobj(funcobj, func_img, mask_img=None):
     :param funcobj:         a funcobj or list of funcobjs
     :param func_img:        3D+time data
     :param mask_img:        binary 3D data for masking (default: None)
+    :param io_handler
     :return processed_img:  processed space data with given function
     """
     # Check data integrity
@@ -92,10 +101,11 @@ def apply_funcobj(funcobj, func_img, mask_img=None):
         indices = np.transpose(np.nonzero(func_img.mean(-1)))
 
     processed_img = np.zeros(func_img.shape[:3])
+    progress = 1
     for n, (i, j, k) in enumerate(indices):
         td_data = func_img[i, j, k, :]
         for f in funcobj:
-            if not isfuncobj(f):
+            if not is_funcobj(f):
                 # Check integrity of given function
                 raise Exception('The input is not funcobj.')
             else:
@@ -106,6 +116,11 @@ def apply_funcobj(funcobj, func_img, mask_img=None):
                 length = td_data.shape[0]
                 processed_img = processed_img[..., np.newaxis]
                 processed_img = np.concatenate([processed_img] * length, axis=-1)
+        if (n / len(indices)) * 10 >= progress:
+            print(progress, end='..', file=io_handler)
+            progress += 1
+        if n == (len(indices) - 1):
+            print('10 [Done]', file=io_handler)
         processed_img[i, j, k] = td_data
     return processed_img
 
@@ -117,7 +132,8 @@ def mkdir(path):
 
 def get_filepath(path, ext=None):
     if ext:
-        return sorted([os.path.join(path, f) for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and ext in f])
+        return sorted([os.path.join(path, f) for f in os.listdir(path)
+                       if os.path.isfile(os.path.join(path, f)) and ext in f])
     else:
         return sorted([os.path.join(path, f) for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))])
 
@@ -128,5 +144,3 @@ def get_subdirpath(path):
 
 def joinpath(*args):
     return os.path.join(*args)
-
-

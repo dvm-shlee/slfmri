@@ -1,6 +1,6 @@
 #!/usr/scripts/env python
 """
-Helper for fmri analysis for dvm-shlee
+Personal module collection for fMRI data analysis.
 """
 from distutils.core import setup
 from setuptools import find_packages
@@ -24,9 +24,11 @@ setup(name='slfmri',
       url=__url__,
       license='GNLv3',
       packages=find_packages(),
-      install_requires=['nibabel',
-                        'SimpleITK>=1.2.4'
+      install_requires=['shleeh>=0.0.4',
+                        'nibabel>=3.0.2',
+                        'SimpleITK>=1.2.4',
                         'numpy>=1.18.0',
+                        'pandas>=1.0.0',
                         'scipy>=1.4.0',
                         'scikit-learn>=0.22.0'],
       classifiers=[

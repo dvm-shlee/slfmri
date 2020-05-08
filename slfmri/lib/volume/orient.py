@@ -1,4 +1,4 @@
-import numpy as np
+from ..errors import *
 from scipy.ndimage import affine_transform
 
 
@@ -41,3 +41,14 @@ def determine_slice_plane(slice_axis, affine, resol):
     rotate_mat = (affine[:3, :3] / resol).astype(np.int8)
     ras_axis = abs(rotate_mat.dot(range(3))).tolist()
     return ['sagittal', 'coronal', 'axial'][ras_axis.index(slice_axis)]
+
+
+def from_matvec(mat, vec):
+    affine = np.eye(4)
+    affine[:3,:3] = mat
+    affine[:3, 3] = vec
+    return affine
+
+
+def to_matvec(matrix):
+    return matrix[:3, :3], matrix[:3, 3]

@@ -70,11 +70,6 @@ def get_logger(path, name):
     return logger
 
 
-
-
-
-
-
 def path_splitter(path):
     """ Split path sting into list
     :param path: path string want to split
