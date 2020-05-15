@@ -117,10 +117,16 @@ def apply_funcobj(funcobj,
                 processed_img = processed_img[..., np.newaxis]
                 processed_img = np.concatenate([processed_img] * length, axis=-1)
         if (n / len(indices)) * 10 >= progress:
-            print(progress, end='..', file=io_handler)
+            if io_handler is not None:
+                io_handler.write(f'{progress}..')
+            else:
+                print(progress, end='..')
             progress += 1
         if n == (len(indices) - 1):
-            print('10 [Done]', file=io_handler)
+            if io_handler is not None:
+                io_handler.write('10 [Done]')
+            else:
+                print('10 [Done]')
         processed_img[i, j, k] = td_data
     return processed_img
 

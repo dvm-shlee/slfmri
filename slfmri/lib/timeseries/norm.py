@@ -10,7 +10,7 @@ def demean(signal, axis=0):
 def standardization(signal, axis=0):
     demeaned = demean(signal, axis=axis)
     
-    if demeaned.std(axis) is 0:
+    if demeaned.std(axis) == 0:
         return demeaned * 0
     else:
         norm_data = demeaned / demeaned.std(axis)

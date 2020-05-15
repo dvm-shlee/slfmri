@@ -88,6 +88,12 @@ def gaussian_smoothing(sitk_img: sitk.Image, fwhm: float,
             parser.append(sitk.SmoothingRecursiveGaussian(vol_img, sigma))
             if io_handler is not None:
                 if (f/num_frames) * 10 >= progress:
+                    io_handler.write(f'{progress}..')
+                    progress += 1
+                if f == (num_frames - 1):
+                    io_handler.write('10 [Done]\n')
+            else:
+                if (f/num_frames) * 10 >= progress:
                     print(progress, end='..', file=io_handler)
                     progress += 1
                 if f == (num_frames - 1):
