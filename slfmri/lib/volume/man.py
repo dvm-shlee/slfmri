@@ -78,7 +78,7 @@ def sitk2nib(sitk_img: sitk.Image, header: Optional[nib.Nifti1Header] = None) ->
 def gaussian_smoothing(sitk_img: sitk.Image, fwhm: float,
                        io_handler: Optional[IO] = None) -> sitk.Image:
     dim = sitk_img.GetDimension()
-    sigma = fwhm2sigma(fwhm)
+    sigma = fwhm2sigma(float(fwhm))
     parser = []
     if dim > 3:
         num_frames = sitk_img.GetSize()[-1]
