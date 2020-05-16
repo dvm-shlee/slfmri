@@ -4,7 +4,7 @@ from ..utils import get_funcobj, apply_funcobj
 
 
 # space normalization tools
-def modenorm(func_img, mask_img=None, mode=1000):
+def modenorm(func_img, mask_img=None, mode=1000, io_handler=None):
     """
     Mode normalization
 
@@ -19,4 +19,4 @@ def modenorm(func_img, mask_img=None, mode=1000):
         indices = np.nonzero(mask_img)
     mean = func_img[indices].mean().copy()
     modenorm_obj = get_funcobj(calc_modenorm, mean, mode)
-    return apply_funcobj(modenorm_obj, func_img, mask_img)
+    return apply_funcobj(modenorm_obj, func_img, mask_img, io_handler)

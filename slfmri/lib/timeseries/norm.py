@@ -18,4 +18,6 @@ def standardization(signal, axis=0):
 
 
 def calc_modenorm(signal, mean, mode):
+    mean = float(mean)
+    mode = float(mode)
     return (signal - mean) * mode / mean + mode
