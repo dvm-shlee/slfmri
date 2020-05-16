@@ -94,10 +94,10 @@ def gaussian_smoothing(sitk_img: sitk.Image, fwhm: float,
                     io_handler.write('10 [Done]\n')
             else:
                 if (f/num_frames) * 10 >= progress:
-                    print(progress, end='..', file=io_handler)
+                    print(progress, end='..')
                     progress += 1
                 if f == (num_frames - 1):
-                    print('10 [Done]', file=io_handler)
+                    print('10 [Done]\n')
         smoothed_img = sitk.JoinSeries(parser)
         smoothed_img.CopyInformation(sitk_img)
         return smoothed_img

@@ -124,9 +124,9 @@ def apply_funcobj(funcobj,
             progress += 1
         if n == (len(indices) - 1):
             if io_handler is not None:
-                io_handler.write('10 [Done]')
+                io_handler.write('10 [Done]\n')
             else:
-                print('10 [Done]')
+                print('10 [Done]\n')
         processed_img[i, j, k] = td_data
     return processed_img
 
