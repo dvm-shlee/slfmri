@@ -69,7 +69,7 @@ def sitk2nib(sitk_img: sitk.Image, header: Optional[nib.Nifti1Header] = None) ->
     img = nib.Nifti1Image(dataobj, affine)
     if header is None and len(resol) > 3:
         img.header['pixdim'][4] = resol[3]
-        img.header.set_xyzt_units('mm', 'sec')
+        img.header.set_xyzt_units(xyz=2, t=8)
     else:
         img._header = header.copy()
     return img
@@ -78,7 +78,7 @@ def sitk2nib(sitk_img: sitk.Image, header: Optional[nib.Nifti1Header] = None) ->
 def gaussian_smoothing(sitk_img: sitk.Image, fwhm: float,
                        io_handler: Optional[IO] = None) -> sitk.Image:
     dim = sitk_img.GetDimension()
-    sigma = fwhm2sigma(float(fwhm))
+    sigma = fwhm2sigma(fwhm)
     parser = []
     if dim > 3:
         num_frames = sitk_img.GetSize()[-1]

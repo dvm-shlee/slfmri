@@ -22,13 +22,13 @@ def bandpass(signal: np.ndarray, bandcut: Union[List[float], float],
     def butter_bandpass(cut_freqs, fs_, order_):
         nyq = 0.5 * fs_
         if isinstance(cut_freqs, list) and len(cut_freqs) == 2:
-            lowcut = float(cut_freqs[0]) / nyq
-            highcut = float(cut_freqs[1]) / nyq
-            return signal_.butter(int(order_), [lowcut, highcut], btype='bandpass', output='ba')
+            lowcut = cut_freqs[0] / nyq
+            highcut = cut_freqs[1] / nyq
+            return signal_.butter(order_, [lowcut, highcut], btype='bandpass', output='ba')
         else:
             try:
                 oneside_cut = float(cut_freqs) / nyq
-                return signal_.butter(int(order_), oneside_cut, btype='highpass', output='ba')
+                return signal_.butter(order_, oneside_cut, btype='highpass', output='ba')
             except:
                 raise Exception('Wrong cut frequency value(s).')
 
