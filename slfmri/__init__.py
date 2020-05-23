@@ -6,3 +6,5 @@ from .deprecated.tmpobj import Atlas
 
 __version__ = '0.0.2'
 __all__ = ['utils', 'timeseries', 'io', 'volume', 'Atlas']
+
+load = io.load
