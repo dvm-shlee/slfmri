@@ -1,12 +1,13 @@
 from scipy import sparse
 from scipy import signal as signal_
 from scipy.sparse import linalg
-from typing import Union, List
+from typing import Union, List, Optional
 from .norm import standardization
 from ..errors import *
 
 
-def bandpass(signal: np.ndarray, bandcut: Union[List[float], float],
+def bandpass(signal: np.ndarray,
+             highpass: Optional[float], lowpass: Optional[float],
              dt: Union[int, float], order: int = 5) -> np.ndarray:
     """ Method to perform bandpass filtering. If only one frequency is given, perform Highpass filter instead.
     Args:
@@ -19,24 +20,25 @@ def bandpass(signal: np.ndarray, bandcut: Union[List[float], float],
     """
     fs = 1.0/float(dt)
 
-    def butter_bandpass(cut_freqs, fs_, order_):
+    def butter_bandpass(highpass_, lowpass_, fs_, order_):
         nyq = 0.5 * fs_
-        if isinstance(cut_freqs, list) and len(cut_freqs) == 2:
-            lowcut = cut_freqs[0] / nyq
-            highcut = cut_freqs[1] / nyq
+        if highpass_ and lowpass_:
+            highcut = highpass_ / nyq
+            lowcut = lowpass_ / nyq
             return signal_.butter(order_, [lowcut, highcut], btype='bandpass', output='ba')
         else:
-            try:
-                oneside_cut = float(cut_freqs) / nyq
-                return signal_.butter(order_, oneside_cut, btype='highpass', output='ba')
-            except:
-                raise Exception('Wrong cut frequency value(s).')
+            if highpass_:
+                highcut = highpass_ / nyq
+                return signal_.butter(order_, highcut, btype='highpass', output='ba')
+            if lowpass_:
+                lowcut = lowpass_ / nyq
+                return signal_.butter(order_, lowcut, btype='lowpass', output='ba')
 
     mean = signal.mean()
     std = signal.std()
     normed_signal = standardization(signal)
 
-    ba = butter_bandpass(bandcut, fs, order_=order)
+    ba = butter_bandpass(highpass, lowpass, fs, order_=order)
     y = signal_.lfilter(ba[0], ba[1], normed_signal)
     return np.asarray(y) * std + mean
 
