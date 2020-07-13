@@ -12,33 +12,34 @@ def bandpass(signal: np.ndarray,
     """ Method to perform bandpass filtering. If only one frequency is given, perform Highpass filter instead.
     Args:
         signal:  time series data
-        bandcut: filter frequency range, perform highpass filter if given only one frequency
+        highpass: filter frequency cut for high-pass filter
+        lowpass: filter frequency cut for low-pass filter
         dt: sampling time
         order: order of the filter
     Returns:
         filtered signal
     """
     fs = 1.0/float(dt)
-
-    def butter_bandpass(highpass_, lowpass_, fs_, order_):
-        nyq = 0.5 * fs_
-        if highpass_ and lowpass_:
-            highcut = highpass_ / nyq
-            lowcut = lowpass_ / nyq
-            return signal_.butter(order_, [lowcut, highcut], btype='bandpass', output='ba')
-        else:
-            if highpass_:
-                highcut = highpass_ / nyq
-                return signal_.butter(order_, highcut, btype='highpass', output='ba')
-            if lowpass_:
-                lowcut = lowpass_ / nyq
-                return signal_.butter(order_, lowcut, btype='lowpass', output='ba')
+    nyq = 0.5 * fs
 
     mean = signal.mean()
     std = signal.std()
     normed_signal = standardization(signal)
 
-    ba = butter_bandpass(highpass, lowpass, fs, order_=order)
+    if highpass and lowpass:
+        highcut = highpass / nyq
+        lowcut = lowpass / nyq
+        ba = signal_.butter(order, [highcut, lowcut], btype='bandpass', output='ba')
+    else:
+        if highpass:
+            highcut = highpass / nyq
+            ba = signal_.butter(order, highcut, btype='highpass', output='ba')
+        elif lowpass:
+            lowcut = lowpass / nyq
+            ba = signal_.butter(order, lowcut, btype='lowpass', output='ba')
+        else:
+            raise InvalidApproach('Missing filter frequency.')
+
     y = signal_.lfilter(ba[0], ba[1], normed_signal)
     return np.asarray(y) * std + mean
 
@@ -92,4 +93,4 @@ def alff(signal, dt, band=(0.01, 0.1)):
     low = np.argmin(abs(f - band[0]))
     high = np.argmin(abs(f - band[1]))
 
-    return p_spec[low:high].mean()
+    return p_spec[low:high].sum()

@@ -12,7 +12,7 @@ __version__ = re.search(
     ).group(1)
 
 __author__ = 'SungHo Lee'
-__email__ = 'shlee:@unc.edu'
+__email__ = 'shlee@unc.edu'
 __url__ = 'https://github.com/dvm-shlee/slfmri'
 
 setup(name='slfmri',

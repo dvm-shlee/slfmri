@@ -1,8 +1,12 @@
 from ..errors import *
+from typing import Union
 
 
-def tsnr(signal: np.ndarray) -> np.ndarray:
-    return signal.mean() / signal.std()
+def tsnr(signal: np.ndarray) -> Union[np.ndarray, int]:
+    if signal.mean() == 0 or signal.std() == 0:
+        return 0
+    else:
+        return signal.mean() / signal.std()
 
 
 def mparam_fd(volreg):

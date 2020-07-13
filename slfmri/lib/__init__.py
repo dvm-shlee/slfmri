@@ -1,1 +1,1 @@
-__all__ = ['io', 'timeseries', 'viz', 'volume', 'utils']
+__all__ = ['io', 'signal', 'viz', 'volume', 'utils']

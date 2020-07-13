@@ -1,5 +1,5 @@
 from ..errors import *
-from ..timeseries.corr import kandallw
+from ..signal.corr import kandallw
 
 
 def reho(func_img, mask_img=None, nn=3):

@@ -1,4 +1,5 @@
 from .afni import AfniIO
+from .itksnap import Atlas
 import json
 import pandas as pd
 import nibabel as nib
@@ -40,4 +41,6 @@ def save_to_nii(func_img: np.ndarray,
     nii.to_filename(fpath)
 
 
-__all__ = ['AfniIO', 'load', 'save_to_nii']
+__all__ = ['AfniIO',
+           'Atlas',
+           'load', 'save_to_nii']

@@ -1,10 +1,10 @@
 from ..errors import *
-from ..timeseries import calc_modenorm, standardization
+from ..signal import modenorm, standardize
 from ..utils import get_funcobj, apply_funcobj
 
 
 # space normalization tools
-def modenorm(func_img, mask_img=None, mode=1000, io_handler=None):
+def vol_modenorm(func_img, mask_img=None, mode=1000, io_handler=None):
     """ Mode normalization
 
     Args:
@@ -20,11 +20,11 @@ def modenorm(func_img, mask_img=None, mode=1000, io_handler=None):
     else:
         indices = np.nonzero(mask_img)
     mean = func_img[indices].mean().copy()
-    modenorm_obj = get_funcobj(calc_modenorm, mean, mode)
+    modenorm_obj = get_funcobj(modenorm, mean, mode)
     return apply_funcobj(modenorm_obj, func_img, mask_img, io_handler)
 
 
-def standardize(func_img, mask_img=None, io_handler=None):
+def vol_standardize(func_img, mask_img=None, io_handler=None):
     """
     Standard normalization
 
@@ -35,5 +35,5 @@ def standardize(func_img, mask_img=None, io_handler=None):
     Returns:
         normalized image
     """
-    standardized_obj = get_funcobj(standardization)
+    standardized_obj = get_funcobj(standardize)
     return apply_funcobj(standardized_obj, func_img, mask_img, io_handler)
