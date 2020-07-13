@@ -9,17 +9,30 @@ def tsnr(signal: np.ndarray) -> Union[np.ndarray, int]:
         return signal.mean() / signal.std()
 
 
-def mparam_fd(volreg):
-    """ Frame-wise displacement """
-    return np.abs(np.insert(np.diff(volreg, axis=0), 0, 0, axis=0)).sum(axis=1)
+def framewise_displacements(volreg):
+    """
+    This function calculate volume displacement from motion parameter
+    """
+    import numpy as np
+    import pandas as pd
+
+    output = dict()
+    columns = volreg.columns
+    # Framewise displacement
+    output['FD'] = np.abs(np.insert(np.diff(volreg, axis=0), 0, 0, axis=0)).sum(axis=1)
+    # Absolute rotational displacement
+    output['ARD'] = np.abs(np.insert(np.diff(volreg[columns[:3]], axis=0), 0, 0, axis=0)).sum(axis=1)
+    # Absolute translational displacement
+    output['ATD'] = np.abs(np.insert(np.diff(volreg[columns[3:]], axis=0), 0, 0, axis=0)).sum(axis=1)
+    return pd.DataFrame(output)
 
 
-def mparam_ard(volreg):
-    """ Absolute rotational displacement """
-    return np.abs(np.insert(np.diff(volreg[volreg.columns[:3]], axis=0),
-                            0, 0, axis=0)).sum(axis=1)
-
-
-def mparam_atd(volreg):
-    return np.abs(np.insert(np.diff(volreg[volreg.columns[3:]], axis=0),
-                            0, 0, axis=0)).sum(axis=1)
+def convert_radian2distance(volreg, mean_radius):
+    """
+    :param volreg:
+    :param mean_radius:
+    :return:
+    """
+    import numpy as np
+    volreg[['Roll', 'Pitch', 'Yaw']] *= (np.pi / 180 * mean_radius)
+    return volreg
