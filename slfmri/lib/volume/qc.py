@@ -10,7 +10,7 @@ def dvars(func_img, mask_img=None):
         indices = np.nonzero(func_img.mean(-1))
     diff_img = np.diff(func_img[indices], axis=-1)
     dvars_ = np.sqrt(np.square(diff_img).mean(0))
-    return np.insert(dvars_, 0, np.nan)
+    return np.insert(dvars_, 0, 0)
 
 
 def bold_mean_std(func_img, mask_img=None, io_handler=None):
