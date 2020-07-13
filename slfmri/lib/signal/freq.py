@@ -84,6 +84,8 @@ def welch(signal, dt, window='hann', nperseg=None, noverlap=None):
 
 
 def alff(signal, dt, band=(0.01, 0.1)):
+    """ The ALFF method measures the total power of the
+    BOLD signal within the low-frequency range between 0.01 and 0.1 Hz """
     nperseg = 2 * (1/band[0] / dt)
     if signal.shape[0] < nperseg * 2:
         f, p_spec = signal_.periodogram(signal, dt)
