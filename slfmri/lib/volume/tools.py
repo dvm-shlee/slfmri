@@ -40,8 +40,3 @@ def fwhm2sigma(fwhm):
 
 def sigma2fwhm(sigma):
     return sigma * np.sqrt(8 * np.log(2))
-
-
-def random_rgb():
-    levels = range(32,256,32)
-    return tuple(np.random.choice(levels) for _ in range(3))

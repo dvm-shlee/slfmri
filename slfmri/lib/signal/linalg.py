@@ -1,7 +1,7 @@
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures
 import pandas as pd
-from .norm import standardization
+from .norm import standardize
 from ..utils import iszero
 from ..errors import *
 
@@ -48,7 +48,7 @@ def nuisance_regression(signal, estimator, ort=None, order=3):
             ort = pd.DataFrame(ort)
             design_matrix = pd.concat([polort, ort, ort.diff().fillna(0)],
                                       axis=1, ignore_index=True)
-    design_matrix = standardization(design_matrix, axis=0)
+    design_matrix = standardize(design_matrix, axis=0)
 
     model = linear_regression(signal, estimator, design_matrix)
     if isinstance(model, np.ndarray):

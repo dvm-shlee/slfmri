@@ -2,7 +2,7 @@ from scipy import sparse
 from scipy import signal as signal_
 from scipy.sparse import linalg
 from typing import Union, List, Optional
-from .norm import standardization
+from .norm import standardize
 from ..errors import *
 
 
@@ -24,7 +24,7 @@ def bandpass(signal: np.ndarray,
 
     mean = signal.mean()
     std = signal.std()
-    normed_signal = standardization(signal)
+    normed_signal = standardize(signal)
 
     if highpass and lowpass:
         highcut = highpass / nyq
@@ -67,7 +67,7 @@ def als_fit(signal, l: float, p: float, niter: int) -> np.ndarray:
 
 
 def get_phase_angle(signal):
-    analytic_signal = signal.hilbert(signal)
+    analytic_signal = signal_.hilbert(signal)
     return np.rad2deg(np.angle(analytic_signal))
 
 

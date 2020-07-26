@@ -41,6 +41,4 @@ def save_to_nii(func_img: np.ndarray,
     nii.to_filename(fpath)
 
 
-__all__ = ['AfniIO',
-           'Atlas',
-           'load', 'save_to_nii']
+__all__ = ['AfniIO', 'Atlas', 'load', 'save_to_nii']

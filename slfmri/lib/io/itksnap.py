@@ -2,7 +2,11 @@ import os
 import re
 import numpy as np
 import nibabel as nib
-from ..volume.tools import random_rgb
+
+
+def random_rgb():
+    levels = range(32,256,32)
+    return tuple(np.random.choice(levels) for _ in range(3))
 
 
 class Atlas(object):
