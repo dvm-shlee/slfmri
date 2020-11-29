@@ -2,14 +2,10 @@ import os
 import re
 import numpy as np
 import nibabel as nib
+from ..utils import random_rgb
 
 
-def random_rgb():
-    levels = range(32,256,32)
-    return tuple(np.random.choice(levels) for _ in range(3))
-
-
-class Atlas(object):
+class Atlas:
     """ This class templating the segmentation image object to handle atlas related attributes
     """
     def __init__(self, fname, dir='./', img_ext='nii.gz', label_ext='label'):
@@ -17,9 +13,13 @@ class Atlas(object):
         self._labels = dict()
         self._cmap = dict()
 
-        self.img_path = os.path.join(dir, f'{fname}.{img_ext}')
+        if fname.endswith(img_ext):
+            self.img_path = os.path.join(dir, f'{fname}')
+        else:
+            self.img_path = os.path.join(dir, f'{fname}.{img_ext}')
         self.label_path = os.path.join(dir, f'{fname}.{label_ext}')
         self._load_img()
+        self._load_label()
 
     def _load_img(self):
         self.imgobj = nib.load(self.img_path)

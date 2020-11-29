@@ -1,5 +1,6 @@
 from .afni import AfniIO
 from .itksnap import Atlas
+from .sitk import nib2sitk, sitk2nib
 import json
 import pandas as pd
 import nibabel as nib
@@ -33,12 +34,65 @@ def load(file_path: str):
     return img
 
 
-def save_to_nii(func_img: np.ndarray,
+def load_volreg(path, mean_radius=9):
+    """ Return motion parameter estimated from AFNI's 3dvolreg
+    radian values will converted to distance based on given radius.
+
+    :param path:        filepath of 1D data
+    :param mean_radius: the distance from aural to central fissure of animal (default: 9mm for rat)
+    :return:
+    """
+
+    def convert_radian2distance(volreg_, mean_radius_):
+        volreg_[['Roll', 'Pitch', 'Yaw']] *= (np.pi / 180 * mean_radius_)
+        return volreg_
+
+    volreg = load(path)
+    volreg.columns = ['Roll', 'Pitch', 'Yaw', 'dI-S', 'dR-L', 'dA-P']
+    r = np.round(np.sqrt(2) * mean_radius)
+    return convert_radian2distance(volreg, r)
+
+
+def save_to_nii(data: np.ndarray,
                 niiobj: nib.Nifti1Image,
-                fpath: str):
-    nii = nib.Nifti2Image(func_img, niiobj.affine)
-    nii._header = niiobj.get_header().copy()
+                fpath: str,
+                copy_header=False,
+                space='scanner'):
+    nii = nib.Nifti2Image(data, niiobj.affine)
+    if copy_header:
+        nii._header = niiobj.get_header().copy()
+    else:
+        if space == 'scanner':
+            nii.header['qform_code'] = 1
+            nii.header['sform_code'] = 0
     nii.to_filename(fpath)
 
 
-__all__ = ['AfniIO', 'Atlas', 'load', 'save_to_nii']
+class PathMan:
+    def __init__(self, path):
+        self._path = path
+        self._check_exists()
+
+    def _check_exists(self):
+        if not os.path.exists(self._path):
+            os.mkdir(self._path)
+
+    def listdir(self, pattern=None):
+        result = [p for p in os.listdir(self._path)]
+        if pattern is not None:
+            result = [p for p in result if re.match(pattern, p)]
+        return {i: p for i, p in enumerate(result)}
+
+    def chdir(self, dir_name):
+        return PathMan(self(dir_name))
+
+    def __call__(self, fname):
+        return os.path.join(self._path, fname)
+
+    def load(self, idx, pattern=None):
+        return load(self(self.listdir(pattern=pattern)[idx]))
+
+
+__all__ = ['AfniIO', 'Atlas', 'load',
+           'save_to_nii', 'load_volreg',
+           'nib2sitk', 'sitk2nib']
