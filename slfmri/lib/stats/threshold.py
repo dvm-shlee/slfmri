@@ -18,13 +18,14 @@ def thr_by_z(nib_obj, pval, twosided=False):
             dm = d[msk_idx]
             d_z = (dm - dm.mean()) / dm.std()
             if twosided:
-                d_z[abs(d_z) < norm.ppf(1 - pval / 2)] = 0
+                d_z[abs(d_z) < norm.ppf(1 - pval/2)] = 0
             else:
                 d_z[d_z < norm.ppf(1 - pval)] = 0
-            do[msk_idx] = d_z
+            dm[d_z == 0] = 0
+            do[msk_idx] = dm
             thr_data[..., i] = do
     if len(nib_obj.shape) == 3:
-        thr_data = thr_data[:, :, :, 0]
+        thr_data = thr_data[:,:,:,0]
     return save_to_nib(thr_data, affine)
 
 

@@ -9,7 +9,8 @@ def bandpass(data: np.ndarray,
              dt: Union[int, float], order: int = 5,
              lowcut: Optional[float] = None,
              highcut: Optional[float] = None,
-             output: str = 'sos') -> np.ndarray:
+             output: str = 'sos',
+             analog = False) -> np.ndarray:
     """ Method to perform bandpass filtering. If only one frequency is given, perform Highpass filter instead.
     Args:
         data:  V x T data where V is voxels and T is time points
@@ -26,14 +27,14 @@ def bandpass(data: np.ndarray,
     if lowcut and highcut:
         highcut /= nyq
         lowcut /= nyq
-        op = signal.butter(order, [lowcut, highcut], btype='bandpass', output=output)
+        op = signal.butter(order, [lowcut, highcut], btype='bandpass', output=output, analog=analog)
     else:
         if lowcut:
             lowcut /= nyq
-            op = signal.butter(order, lowcut, btype='highpass', output=output)
+            op = signal.butter(order, lowcut, btype='highpass', output=output, analog=analog)
         elif highcut:
             highcut /= nyq
-            op = signal.butter(order, highcut, btype='lowpass', output=output)
+            op = signal.butter(order, highcut, btype='lowpass', output=output, analog=analog)
         else:
             raise InvalidApproach('Missing filter frequency.')
     if output == 'sos':
@@ -87,13 +88,11 @@ def standardize(data: np.ndarray) -> np.ndarray:
     if dim == 1:
         sd_data = (data - data.mean()) / data.std()
     else:
-        mask_idx = np.nonzero(data.mean(-1))
-        masked_data = data[mask_idx]
-        masked_sd = np.zeros(masked_data.shape)
-        for i, d in enumerate(masked_data):
-            masked_sd[i, :] = (d - d.mean()) / d.std()
+        std_arr = data.std(-1)
+        m_data = data[np.nonzero(std_arr)]
+        msd_data = ((m_data.T - m_data.mean(-1)) / std_arr).T
         sd_data = np.zeros(data.shape)
-        sd_data[mask_idx] = masked_sd
+        sd_data[np.nonzero(std_arr)] = msd_data
     return sd_data
 
 
@@ -153,3 +152,24 @@ def als_fit(data: np.ndarray,
 def phase_angle(data):
     analytic_signal = signal.hilbert(data)
     return np.rad2deg(np.angle(analytic_signal))
+
+
+def rat_hrf(t, b=2.0, p1=7.4, p2=8.9, v=1.5):
+    """
+    Rat hemodynamic function
+    Lambers et al. 2020. doi:10.1016/j.neuroimage.2019.116446
+    Args:
+        t: time steps
+        b: dispersion parameter
+        p1: peak parameter 1
+        p2: peak parameter 2
+        v: ratio parameter
+
+    Returns:
+        rat hemodynamic response function
+    """
+    import math
+    peak = (b**p1)/math.gamma(p1)*t**(p1-1)
+    under = (b**p2)/(v*math.gamma(p2))*t**(p2-1)
+    hrf = np.e**(-1 * b * t) * (peak - under)
+    return hrf / hrf.max()

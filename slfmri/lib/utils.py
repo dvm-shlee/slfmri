@@ -14,7 +14,7 @@ def iszero(data):
     return np.all(data == 0, axis=0)
 
 
-def get_cluster_coordinates(coord, size=1, nn_level=3, mask=None):
+def get_cluster_coordinates(coord, size=1, nn_level=3):
     """
     size: number of voxels want to include from the center
     NN: 1='faces', 2='faces and edges', 3='faces, edges, and corners'
@@ -37,11 +37,9 @@ def get_cluster_coordinates(coord, size=1, nn_level=3, mask=None):
     all_poss = [(i, j, k) for i in x_ for j in y_ for k in z_]
     output_coord = [c for c in all_poss if cal_distance(coord, c) <= thr]
 
-    if mask is None:
-        return output_coord
-    else:
-        return [c for c in output_coord if c in mask]
+    return output_coord
 
 
 def cal_distance(coord_a, coord_b):
     return np.sqrt(np.square(np.diff(np.asarray(list(zip(coord_a, coord_b))))).sum())
+

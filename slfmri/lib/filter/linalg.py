@@ -50,7 +50,11 @@ def linear_regression(data: np.ndarray,
     else:
         raise InvalidApproach('Invalid input for "metrics"')
 
-    fitted = np.zeros([bs.shape[0], model.shape[0], model.shape[1]])
+    try:
+        fitted = np.zeros([bs.shape[0], model.shape[0], model.shape[1]])
+    except:
+        fitted = np.zeros([bs.shape[0], model.shape[0], model.shape[0]], dtype=np.float32)
+
     for i, b in enumerate(bs):
         fitted[i, ...] = model * b
     if return_beta:
