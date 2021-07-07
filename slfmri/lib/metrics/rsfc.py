@@ -66,18 +66,9 @@ def amplitude_low_freq_fluctuation(data: np.ndarray,
     return alff
 
 
-def kendal_w(data, nn=None):
+def kendal_w(data):
     from scipy.stats import rankdata
     m, n = data.shape
-    if nn is not None:
-        if nn == 1:
-            n = 7
-        elif nn == 2:
-            n = 19
-        elif nn == 3:
-            n = 27
-        else:
-            raise UnexpectedError('out of range')
     if m != 0:
         ranks = np.apply_along_axis(rankdata, 1, data).sum(0)
         mean_ranks = ranks.mean()
