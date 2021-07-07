@@ -101,7 +101,7 @@ def regional_homogeneity(data, nn=3, io_handler=sys.stdout):
         coord = coord[:, coord_flt]
         cd = data[tuple(coord)]
         masked_cd = cd[np.nonzero(cd.mean(-1))]
-        masked_reho[i] = kendal_w(masked_cd, nn=nn)
+        masked_reho[i] = kendal_w(masked_cd)
         if (i / n_voxels) * 10 >= progress:
             io_handler.write(f'{progress}..')
             progress += 1
